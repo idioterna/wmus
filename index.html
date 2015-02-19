@@ -100,8 +100,6 @@ $(document).ready(function () {
 					}
 				});
 		});
-	var music_requeue = $('<input type="button" value="requeue"/>');
-	var music_remove = $('<input type="button" value="remove"/>');
 	var music_skip = $('<input type="button" value="skip"/>').click(function () { $.get("/abrt").always(function () { getLists(); }); });
 	var music_stop = $('<input type="button" value="stop"/>').click(function () { $.get("/stop").always(function () { getLists(); }); });
 	var music_resume = $('<input type="button" value="resume"/>').click(function () { $.get("/resu").always(function () { getLists(); }); });
@@ -123,16 +121,16 @@ $(document).ready(function () {
 		});
 		$.getJSON("/list", function (data) {
 			$("#q").html(fill_ol(data, "Play queue:"));
-			$("#q ol li").append(music_remove.click(function (x) {
+			$("#q ol li").append($('<input type="button" value="remove"/>').click(function (x) {
 				$.get("/delq?hash=" + $(x.target).prev(".song-url").text()).always(function (data) { getLists(); messagebox.message("removed stream: " + data, 1000); });
 			}));
 		});
 		$.getJSON("/hist", function (data) {
 			$("#h").html(fill_ol(data, "Play history:"));
-			$("#h ol li").append(music_requeue.click(function (x) {
+			$("#h ol li").append($('<input type="button" value="requeue"/>').click(function (x) {
 				$.get("/addq?hash=" + $(x.target).prev(".song-url").text()).always(function (data) { getLists(); messagebox.message("requeued stream: " + data, 1000); });
 			}));
-			$("#h ol li").append(music_remove.click(function (x) {
+			$("#h ol li").append($('<input type="button" value="remove"/>').click(function (x) {
 				$.get("/delh?hash=" + $(x.target).prev(".song-url").text()).always(function (data) { getLists(); messagebox.message("removed stream: " + data, 1000); });
 			}));
 		});
