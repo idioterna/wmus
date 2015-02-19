@@ -300,7 +300,7 @@ func saveQueues() {
 		log.Printf("error saving history: %s", err)
 	}
 	b.Reset()
-	data, err = jsonList(musicHistory)
+	data, err = jsonList(musicQueue)
 	b.Write(data)
 	err = ioutil.WriteFile("queue.json", b.Bytes(), 0644)
 	if err != nil {
