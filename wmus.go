@@ -13,10 +13,12 @@ import (
 	"log"
 	"time"
 	"path"
+	"bytes"
 	"os/exec"
 	"strings"
 	"net/http"
 	"io/ioutil"
+	"os/signal"
 	"encoding/json"
 	"container/list"
 )
@@ -180,6 +182,19 @@ func jsonList(l *list.List, reverse ...bool) (data []byte, err error) {
 	return json.Marshal(items)
 }
 
+func listJson(l *list.List, data []byte) (err error) {
+	var music_array []Music
+	err = json.Unmarshal(data, &music_array);
+	if err != nil {
+		return err
+	}
+	l.Init()
+	for _, value := range music_array {
+		l.PushBack(value)
+	}
+	return nil
+}
+
 func handler(w http.ResponseWriter, r *http.Request) {
 	switch (r.URL.Path[1:]) {
 		case "":
@@ -273,7 +288,41 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func saveQueues() {
+	var b bytes.Buffer
+	data, err := jsonList(musicHistory)
+	if err != nil {
+		log.Printf("unable to encode history: %s", err)
+	}
+	b.Write(data)
+	err = ioutil.WriteFile("history.json", b.Bytes(), 0644)
+	if err != nil {
+		log.Printf("error saving history: %s", err)
+	}
+	b.Reset()
+	data, err = jsonList(musicHistory)
+	b.Write(data)
+	err = ioutil.WriteFile("queue.json", b.Bytes(), 0644)
+	if err != nil {
+		log.Printf("error saving queue: %s", err)
+	}
+}
+
+func loadQueues() {
+	b, err := ioutil.ReadFile("queue.json")
+	if err != nil {
+		log.Printf("error loading queue: %s", err)
+	}
+	listJson(musicQueue, b)
+	b, err = ioutil.ReadFile("history.json")
+	if err != nil {
+		log.Printf("error loading history: %s", err)
+	}
+	listJson(musicHistory, b)
+}
+
 func main() {
+
 	player_errors = make(chan error, 10)
 	player_quit = make(chan bool, 1)
 	player_done = make(chan bool, 1)
@@ -285,6 +334,18 @@ func main() {
 	musicHistory = list.New()
 	messageBuffer = list.New()
 	nowPlaying = ""
+
+	quit_signal := make(chan os.Signal, 1)
+	signal.Notify(quit_signal, os.Interrupt)
+	go func(){
+		for _ = range quit_signal {
+			saveQueues()
+			os.Exit(0)
+		}
+	}()
+
+	loadQueues()
+
 	log.Print("starting queue player...")
 	go queuePlayer()
 	http.HandleFunc("/", handler)
