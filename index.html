@@ -84,10 +84,14 @@ $(document).ready(function () {
 			messagebox.text(text);
 		}
 	}
-	var music_text = $('<input type="text" id="music_text" value=""/>').focusout(function () {
+	var music_text = $('<input type="text" id="music_text" value=""/>')
+		.focusout(function () {
 			setTimeout(function () { $("#music_text").focus(); }, 100);
+		})
+		.keyup(function (e) {
+			if (e.keyCode == 13) $("#music_add").click();
 		});
-	var music_add = $('<input type="button" value="add music"/>').click(function () {
+	var music_add = $('<input type="button" id="music_add" value="add music"/>').click(function () {
 			messagebox.message("Adding to queue...");
 			$.get("/addq?hash=" + music_text.val())
 				.always(function (data) {
