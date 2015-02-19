@@ -1,5 +1,5 @@
 # wmus
-Music queue web interface using mplayer/cvlc currently running on a rpi2
+Music queue web interface using mplayer/cvlc and youtube-dl currently running on a rpi2
 
 Run
 
