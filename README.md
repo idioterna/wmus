@@ -3,7 +3,8 @@ Music queue web interface using mplayer/cvlc and youtube-dl currently running on
 
 Run
 
-``` go run wmus.go :8080
+```
+go run wmus.go :8080
 ```
 
 Then visit http://host:8080/
