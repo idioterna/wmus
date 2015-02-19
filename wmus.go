@@ -63,7 +63,7 @@ func drainchan(commch chan bool) {
 }
 
 func check_youtube(hash string) (string, string, error) {
-	out, err := exec.Command("/usr/bin/youtube-dl", "-e", "-g", hash).CombinedOutput()
+	out, err := exec.Command("/usr/bin/env", "python", "pafyurl.py", hash).CombinedOutput()
 	if err != nil {
 		log.Printf("youtube error: %s", err)
 		return "", "", err

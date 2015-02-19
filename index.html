@@ -42,6 +42,11 @@ body {
 	background-color: #eef;
 	margin-bottom: 10px;
 }
+#message {
+	color: #a00;
+	float: right;
+	padding: 20px;
+}
 span.song-title {
 	font-family: Helvetica, arial, sans-serif;
 	font-size: 10px;
@@ -55,39 +60,73 @@ span.song-url {
 <script type="text/javascript">
 <!--
 $(document).ready(function () {
-	var fill_ol = function(data) {
+	var fill_ol = function(data, title) {
+		title = typeof title !== 'undefined' ? title : '';
+		if (title) {
+			new_title = $("<p></p>").text(title);
+		} else {
+			new_title = null
+		}
 		var new_ol = $("<ol>");
 		for (var i=data.length-1; i>=0; i--) {
 			new_ol.append($("<li>").append($('<span class="song-title">').text(data[i].Title)).append($('<span class="song-url">').text(data[i].Hash)));
 		}
-		return new_ol;
+		if (new_title) {
+			return $(new_title).add(new_ol);
+		}
+		return new_title + new_ol;
 	}
-	var now_playing = $('<div id="nowtext"/>').text("Now playing: ");
-	$("#now").prepend(now_playing);
-	var music_add = $('<input type="button" value="add music"/>').click(function () {
-			$.get("/addq?hash=" + music_text.val(), null, function (res) { getLists(); console.log("res = " + res); });
-		});
-	$("#now").prepend(music_add);
+	var messagebox = $('<div id="message"/>');
+	messagebox.message = function (text, delay) {
+		if (typeof delay !== 'undefined') {
+			messagebox.text(text);
+			setTimeout(function () { messagebox.text(""); }, delay);
+		} else {
+			messagebox.text(text);
+		}
+	}
 	var music_text = $('<input type="text" id="music_text" value=""/>');
-	$("#now").prepend(music_text);
+	var music_add = $('<input type="button" value="add music"/>').click(function () {
+			messagebox.message("Adding to queue...");
+			$.get("/addq?hash=" + music_text.val())
+				.always(function (data) {
+					music_text.val("");
+					if (data.lastIndexOf("OK", 0) === 0) {
+						getLists();
+						messagebox.message("");
+					} else {
+						getLists();
+						messagebox.message("unable to extract audio for this url", 2000);
+					}
+				});
+		});
 	var music_requeue = $('<input type="button" value="requeue"/>');
-	var music_skip = $('<input type="button" value="skip"/>').click(function () { $.get("/abrt", null, function (res) { getLists(); console.log("res = " + res); }); });
-	var music_stop = $('<input type="button" value="stop"/>').click(function () { $.get("/stop", null, function (res) { getLists(); console.log("res = " + res); }); });
-	var music_resume = $('<input type="button" value="resume"/>').click(function () { $.get("/resu", null, function (res) { getLists(); console.log("res = " + res); }); });
+	var music_skip = $('<input type="button" value="skip"/>').click(function () { $.get("/abrt").always(function () { getLists(); }); });
+	var music_stop = $('<input type="button" value="stop"/>').click(function () { $.get("/stop").always(function () { getLists(); }); });
+	var music_resume = $('<input type="button" value="resume"/>').click(function () { $.get("/resu").always(function () { getLists(); }); });
+	var now_playing = $('<div id="nowtext"/>').text("Now playing: ");
+	$("#now").prepend(music_add);
+	$("#now").prepend(music_text);
 	$("#now").prepend(music_resume);
 	$("#now").prepend(music_stop);
 	$("#now").prepend(music_skip);
+	$("#now").prepend(now_playing);
+	$("#now").prepend(messagebox);
 	var getLists = function () {
 		$.getJSON("/nowp", function (data) {
-			$("#nowtext").text("Now playing: " + data);
+			if (data) {
+				$("#nowtext").text("Now playing: " + data);
+			} else {
+				$("#nowtext").text("Player idle");
+			}
 		});
 		$.getJSON("/list", function (data) {
-			$("#q").html(fill_ol(data));
+			$("#q").html(fill_ol(data, "Play queue:"));
 		});
 		$.getJSON("/hist", function (data) {
-			$("#h").html(fill_ol(data));
+			$("#h").html(fill_ol(data, "Play history:"));
 			$("#h ol li").append(music_requeue.click(function (x) {
-				$.get("/addq?hash=" + $(x.target).prev().text(), null, function () { getLists(); });
+				$.get("/addq?hash=" + $(x.target).prev().text()).always(function () { getLists(); messagebox.message("requeueing stream", 1000); });
 			}));
 		});
 	}

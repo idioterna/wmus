@@ -1,5 +1,6 @@
 # wmus
-Music queue web interface using mplayer/cvlc and youtube-dl currently running on a rpi2
+Music queue web interface using mplayer/cvlc and pafy currently running on a rpi2.
+For some reason, vlc makes the audio output a lot less noisy, so we're using that.
 
 Run
 
