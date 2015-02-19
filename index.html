@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Muzika!</title>
+<style type="text/css">
+<!--
+html {
+	min-height: 100%;
+}
+body {
+	min-height: 100%;
+}
+#c {
+	width: 800px;
+	margin: 0 auto;
+	padding: 20px;
+	background-color: #fff;
+	min-height: 100%;
+}
+#q {
+	width: 370px;
+	background-color: #eef;
+	padding: 10px;
+	min-height: 300px;
+	float: left;
+	margin-right: 10px;
+}
+#h {
+	width: 370px;
+	background-color: #eef;
+	padding: 10px;
+	min-height: 300px;
+	float: left;
+	margin-right: 10px;
+}
+#now {
+	width: 750px;
+	padding: 20px;
+	font-family: Helvetica, arial, sans-serif;
+	font-size: 15px;
+	color: black;
+	background-color: #eef;
+	margin-bottom: 10px;
+}
+span.song-title {
+	font-family: Helvetica, arial, sans-serif;
+	font-size: 10px;
+}
+span.song-url {
+	display: none;
+}
+-->
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script type="text/javascript">
+<!--
+$(document).ready(function () {
+	var fill_ol = function(data) {
+		var new_ol = $("<ol>");
+		for (var i=data.length-1; i>=0; i--) {
+			new_ol.append($("<li>").append($('<span class="song-title">').text(data[i].Title)).append($('<span class="song-url">').text(data[i].Hash)));
+		}
+		return new_ol;
+	}
+	var now_playing = $('<div id="nowtext"/>').text("Now playing: ");
+	$("#now").prepend(now_playing);
+	var music_add = $('<input type="button" value="add music"/>').click(function () {
+			$.get("/addq?hash=" + music_text.val(), null, function (res) { getLists(); console.log("res = " + res); });
+		});
+	$("#now").prepend(music_add);
+	var music_text = $('<input type="text" id="music_text" value=""/>');
+	$("#now").prepend(music_text);
+	var music_requeue = $('<input type="button" value="requeue"/>');
+	var music_skip = $('<input type="button" value="skip"/>').click(function () { $.get("/abrt", null, function (res) { getLists(); console.log("res = " + res); }); });
+	var music_stop = $('<input type="button" value="stop"/>').click(function () { $.get("/stop", null, function (res) { getLists(); console.log("res = " + res); }); });
+	var music_resume = $('<input type="button" value="resume"/>').click(function () { $.get("/resu", null, function (res) { getLists(); console.log("res = " + res); }); });
+	$("#now").prepend(music_resume);
+	$("#now").prepend(music_stop);
+	$("#now").prepend(music_skip);
+	var getLists = function () {
+		$.getJSON("/nowp", function (data) {
+			$("#nowtext").text("Now playing: " + data);
+		});
+		$.getJSON("/list", function (data) {
+			$("#q").html(fill_ol(data));
+		});
+		$.getJSON("/hist", function (data) {
+			$("#h").html(fill_ol(data));
+			$("#h ol li").append(music_requeue.click(function (x) {
+				$.get("/addq?hash=" + $(x.target).prev().text(), null, function () { getLists(); });
+			}));
+		});
+	}
+	getLists();
+	setInterval(getLists, 3000);
+});
+-->
+</script>
+</head>
+<body>
+<div id="c">
+	<div id="now"></div>
+	<div id="q"></div>
+	<div id="h"></div>
+</div>
+</body>
+</html>
