@@ -329,6 +329,15 @@ func loadQueues() {
 	listJson(musicHistory, b)
 }
 
+func autoSave() {
+	for {
+		time.Sleep(time.Minute)
+		log.Print("autosaving queues")
+		saveQueues()
+	}
+}
+
+
 func main() {
 
 	player_errors = make(chan error, 10)
@@ -353,6 +362,8 @@ func main() {
 	}()
 
 	loadQueues()
+
+	go autoSave()
 
 	log.Print("starting queue player...")
 	go queuePlayer()
