@@ -1,8 +1,11 @@
 
-import pafy
+import pafy, sys
 
-youtube = pafy.new("https://www.youtube.com/watch?v=RWhEUR0I9fo")
-
-print(youtube.title)
-print(youtube.getbestaudio().url)
+if len(sys.argv) == 2:
+	youtube = pafy.new(sys.argv[1])
+	print(youtube.title)
+	print(youtube.getbestaudio().url)
+else:
+	print("usage: %s <url>" % sys.argv[0], file=sys.stderr)
+	sys.exit(1)
 
