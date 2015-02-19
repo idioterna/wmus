@@ -309,11 +309,15 @@ func saveQueues() {
 }
 
 func loadQueues() {
+	// music queue
+	log.Print("loading queue...")
 	b, err := ioutil.ReadFile("queue.json")
 	if err != nil {
 		log.Printf("error loading queue: %s", err)
 	}
 	listJson(musicQueue, b)
+	// history
+	log.Print("loading history...")
 	b, err = ioutil.ReadFile("history.json")
 	if err != nil {
 		log.Printf("error loading history: %s", err)
