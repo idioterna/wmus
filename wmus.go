@@ -229,10 +229,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				for e := musicQueue.Back(); e != nil; e = e.Prev() {
 					if e.Value.(Music).Hash == hash {
 						musicQueue.Remove(e)
+						log.Printf("delq removed %v", e.Value.(Music))
 					}
 				}
 				fmt.Fprintf(w, "OK removed")
 			}
+			log.Printf("delq %s", hash)
 		case "delh":
 			v := r.URL.Query()
 			hash := v.Get("hash")
@@ -240,10 +242,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				for e := musicHistory.Back(); e != nil; e = e.Prev() {
 					if e.Value.(Music).Hash == hash {
 						musicHistory.Remove(e)
+						log.Printf("delh removed %v", e.Value.(Music))
 					}
 				}
 				fmt.Fprintf(w, "OK removed")
 			}
+			log.Printf("delh %s", hash)
 		case "nowp":
 			data, err := json.Marshal(nowPlaying)
 			if err != nil {
