@@ -124,7 +124,7 @@ $(document).ready(function () {
 		$.getJSON("/list", function (data) {
 			$("#q").html(fill_ol(data, "Play queue:"));
 			$("#q ol li").append(music_remove.click(function (x) {
-				$.get("/delh?hash=" + $(x.target).prev(".song-url").text()).always(function (data) { getLists(); messagebox.message("removed stream: " + data, 1000); });
+				$.get("/delq?hash=" + $(x.target).prev(".song-url").text()).always(function (data) { getLists(); messagebox.message("removed stream: " + data, 1000); });
 			}));
 		});
 		$.getJSON("/hist", function (data) {
