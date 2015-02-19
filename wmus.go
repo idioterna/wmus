@@ -125,13 +125,13 @@ func queuePlayer() {
 						log.Print("player exited")
 						if time.Since(playstart) > 5 * time.Second {
 							log.Printf("%s played more than 5s, adding to history", e.Value.(Music).Title)
-							musicMap[e.Value.(Music).Title]++
-							if !historyMap[e.Value.(Music).Title] {
-								historyMap[e.Value.(Music).Title] = true
+							musicMap[e.Value.(Music).Hash]++
+							if !historyMap[e.Value.(Music).Hash] {
+								historyMap[e.Value.(Music).Hash] = true
 							} else {
 								// remove all previous titles
 								for f := musicHistory.Front(); f != nil; f = f.Next() {
-									if f.Value.(Music).Title == e.Value.(Music).Title {
+									if f.Value.(Music).Hash == e.Value.(Music).Hash {
 										musicHistory.Remove(f);
 									}
 								}
@@ -206,6 +206,28 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			} else {
 				fmt.Fprintf(w, "NO")
 				log.Print("add failed")
+			}
+		case "delq":
+			v := r.URL.Query()
+			hash := v.Get("hash")
+			if hash != "" {
+				for e := musicQueue.Back(); e != nil; e = e.Prev() {
+					if e.Value.(Music).Hash == hash {
+						musicQueue.Remove(e)
+					}
+				}
+				fmt.Fprintf(w, "OK removed")
+			}
+		case "delh":
+			v := r.URL.Query()
+			hash := v.Get("hash")
+			if hash != "" {
+				for e := musicHistory.Back(); e != nil; e = e.Prev() {
+					if e.Value.(Music).Hash == hash {
+						musicHistory.Remove(e)
+					}
+				}
+				fmt.Fprintf(w, "OK removed")
 			}
 		case "nowp":
 			data, err := json.Marshal(nowPlaying)
