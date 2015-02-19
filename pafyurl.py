@@ -1,4 +1,5 @@
 
+from __future__ import print_function
 import pafy, sys
 
 if len(sys.argv) == 2:
