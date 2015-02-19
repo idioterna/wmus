@@ -45,7 +45,6 @@ body {
 #message {
 	color: #a00;
 	float: right;
-	padding: 20px;
 }
 span.song-title {
 	font-family: Helvetica, arial, sans-serif;
@@ -85,7 +84,9 @@ $(document).ready(function () {
 			messagebox.text(text);
 		}
 	}
-	var music_text = $('<input type="text" id="music_text" value=""/>');
+	var music_text = $('<input type="text" id="music_text" value=""/>').focusout(function () {
+			setTimeout(function () { $("#music_text").focus(); }, 100);
+		});
 	var music_add = $('<input type="button" value="add music"/>').click(function () {
 			messagebox.message("Adding to queue...");
 			$.get("/addq?hash=" + music_text.val())
@@ -111,6 +112,7 @@ $(document).ready(function () {
 	$("#now").prepend(music_skip);
 	$("#now").prepend(now_playing);
 	$("#now").prepend(messagebox);
+	music_text.focus();
 	var getLists = function () {
 		$.getJSON("/nowp", function (data) {
 			if (data) {
