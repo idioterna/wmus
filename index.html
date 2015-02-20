@@ -127,17 +127,17 @@ $(document).ready(function () {
 		});
 		$.getJSON("/list", function (data) {
 			$("#q").html(fill_ol(data, "Play queue:"));
-			$("#q ol li").append($('<input type="button" value="remove"/>').click(function (x) {
+			$("#q ol li").prepend($('<input type="button" value="remove"/>').click(function (x) {
 				$.get("/delq?hash=" + $(x.target).siblings(".song-url").text()).always(function (data) { getLists(); messagebox.message("removed stream: " + data, 1000); });
 			}));
 		});
 		$.getJSON("/hist", function (data) {
 			$("#h").html(fill_ol(data, "Play history:"));
-			$("#h ol li").append($('<input type="button" value="requeue"/>').click(function (x) {
-				$.get("/addq?hash=" + $(x.target).siblings(".song-url").text()).always(function (data) { getLists(); messagebox.message("requeued stream: " + data, 1000); });
-			}));
-			$("#h ol li").append($('<input type="button" value="remove"/>').click(function (x) {
+			$("#h ol li").prepend($('<input type="button" value="remove"/>').click(function (x) {
 				$.get("/delh?hash=" + $(x.target).siblings(".song-url").text()).always(function (data) { getLists(); messagebox.message("removed stream: " + data, 1000); });
+			}));
+			$("#h ol li").prepend($('<input type="button" value="requeue"/>').click(function (x) {
+				$.get("/addq?hash=" + $(x.target).siblings(".song-url").text()).always(function (data) { getLists(); messagebox.message("requeued stream: " + data, 1000); });
 			}));
 		});
 	}
