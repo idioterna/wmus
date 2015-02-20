@@ -10,3 +10,4 @@ go run wmus.go :8080
 
 Then visit http://host:8080/
 
+![wmus screenshot](/wmus.png "wmus")
