@@ -206,6 +206,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				log.Print("index")
 			}
 		case "addq":
+			// allow youtube userscript to interact
+			origin := r.Header.Get("Origin")
+			if strings.Index(origin, "http://www.youtube.com") == 0 || strings.Index(origin, "https://www.youtube.com") == 0 {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+			}
 			v := r.URL.Query()
 			hash := v.Get("hash")
 			if hash != "" {
@@ -249,12 +254,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			}
 			log.Printf("delh %s", hash)
 		case "nowp":
-			data, err := json.Marshal(nowPlaying)
-			if err != nil {
-				fmt.Fprintf(w, "NO")
+			if player_stopped {
+				fmt.Fprintf(w, "STOPPED")
 				break
 			} else {
-				w.Write(data)
+				fmt.Fprintf(w, "OK %s", nowPlaying)
 			}
 		case "list":
 			data, err := jsonList(musicQueue, true)
