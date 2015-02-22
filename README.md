@@ -12,7 +12,7 @@ Then visit http://host:8080/
 
 ![wmus screenshot](/wmus.png "wmus")
 
-## wmus herlper userscript
+## wmus helper userscript
 I added a ![wmus helper userscript](/wmus_helper.user.js) script that adds a
 simple queue button to youtube watch pages that adds the current url to the
 queue. Until it knows where your wmus is running it will display a text input
@@ -24,7 +24,7 @@ cross-site requests to non-https URIs are then forbidden (this is a good thing).
 You must set up a SSL certificate that your browser trusts for this to work.
 
 *NOTE*: To learn more about SSL security, which this example
-is completely devoid of, visit ![SSL Labs](https://www.ssllabs.com/)
+is completely devoid of, visit [SSL Labs](https://www.ssllabs.com/)
 
 Instructions for creating a self-signed certificate are below:
 
@@ -40,7 +40,7 @@ $ go run wmus.go :8443 cert.pem key.pem
 
 and tell your browser to trust your self-signed certificate.
 
-You may want to use a https proxy, such as ![nginx](http://nginx.org/), with
+You may want to use a https proxy, such as [nginx](http://nginx.org/), with
 a configuration similar to this (assuming you're running wmus on :8080):
 
 ```
