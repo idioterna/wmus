@@ -38,7 +38,8 @@ You may then start your wmus server with TLS support:
 $ go run wmus.go :8443 cert.pem key.pem
 ```
 
-and tell your browser to trust your self-signed certificate.
+and visit https://localhost:8443/ and tell your browser to trust your
+self-signed certificate.
 
 You may want to use a https proxy, such as [nginx](http://nginx.org/), with
 a configuration similar to this (assuming you're running wmus on :8080):
