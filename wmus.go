@@ -373,6 +373,18 @@ func main() {
 	go queuePlayer()
 	http.HandleFunc("/", handler)
 	log.Print("starting web server...")
-	http.ListenAndServe(os.Args[1], nil)
+	if len(os.Args) < 2 {
+		log.Printf("Usage: %s <host:port>", os.Args[0])
+		log.Printf("Ex: %s :8080", os.Args[0])
+		log.Printf("Ex: %s :8443 cert.pem key.pem", os.Args[0])
+		log.Fatal("No listening socket specified, exiting!")
+	}
+	hostPort := os.Args[1]
+	if len(os.Args) == 4 {
+		certFile := os.Args[2]
+		keyFile := os.Args[3]
+		http.ListenAndServeTLS(hostPort, certFile, keyFile, nil)
+	}
+	http.ListenAndServe(hostPort, nil)
 }
 
