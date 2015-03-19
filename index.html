@@ -75,7 +75,7 @@ $(document).ready(function () {
 		}
 		return new_title + new_ol;
 	}
-	var messagebox = $('<div id="message"/>');
+	var messagebox = $('<span id="message"/>');
 	messagebox.message = function (text, delay) {
 		if (typeof delay !== 'undefined') {
 			messagebox.text(text);
@@ -105,26 +105,47 @@ $(document).ready(function () {
 					}
 				});
 		});
-	var music_skip = $('<input type="button" value="skip"/>').click(function () { $.get("/abrt").always(function () { getLists(); }); });
-	var music_stop = $('<input type="button" value="stop"/>').click(function () { $.get("/stop").always(function () { getLists(); }); });
-	var music_resume = $('<input type="button" value="resume"/>').click(function () { $.get("/resu").always(function () { getLists(); }); });
+	var music_skip = $('<input type="button" id="music_skip" value="skip"/>').click(function () { $.get("/abrt").always(function () { getLists(); }); });
+	var music_stop = $('<input type="button" id="music_stop" value="stop"/>').click(function () { $.get("/stop").always(function () { getLists(); }); });
+	var music_resume = $('<input type="button" id="music_resume" value="resume"/>').click(function () { $.get("/resu").always(function () { getLists(); }); });
 	var music_forever = $('<input type="button" value="forever"/>').click(function () { $.get("/loop").always(function () { getLists(); }); });
-	var now_playing = $('<div id="nowtext"/>').text("Now playing: ");
-	$("#now").prepend(music_add);
-	$("#now").prepend(music_text);
+	var now_playing = $('<span id="nowtext"/>').text("Now playing: ");
+	$("#now").append(messagebox);
+	$("#now").append(music_skip);
+	$("#now").append(music_stop);
 	$("#now").prepend(music_forever);
-	$("#now").prepend(music_resume);
-	$("#now").prepend(music_stop);
-	$("#now").prepend(music_skip);
-	$("#now").prepend(now_playing);
-	$("#now").prepend(messagebox);
+	$("#now").append(music_resume);
+	$("#now").append(now_playing);
+	$("#now").append("<br/>");
+	$("#now").append(music_text);
+	$("#now").append(music_add);
 	music_text.focus();
 	var getLists = function () {
-		$.getJSON("/nowp", function (data) {
-			if (data) {
-				$("#nowtext").text("Now playing: " + data);
+		$.get("/nowp", function (data) {
+			if (data.lastIndexOf("STOPPED", 0) === 0) {
+				$("#nowtext").text("Player stopped");
+				$("#music_resume").show();
+				$("#music_forever").show();
+				$("#music_skip").hide();
+				$("#music_stop").hide();
+			} else if (data.lastIndexOf("OK ", 0) === 0) {
+				var title = data.substring(3);
+				if (title !== "") {
+					$("#nowtext").text("Now playing: " + title);
+					$("#music_resume").hide();
+					$("#music_forever").show();
+					$("#music_skip").show();
+					$("#music_stop").show();
+				} else {
+					$("#nowtext").text("Queue empty");
+					$("#music_resume").hide();
+					$("#music_forever").show();
+					$("#music_skip").hide();
+					$("#music_stop").show();
+				}
 			} else {
-				$("#nowtext").text("Player idle");
+				// error
+				$("#nowtext").text("Unknown/error");
 			}
 		});
 		$.getJSON("/list", function (data) {

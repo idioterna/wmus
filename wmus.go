@@ -220,6 +220,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 				log.Print("index")
 			}
 		case "addq":
+			// allow youtube userscript to interact
+			origin := r.Header.Get("Origin")
+			if strings.Index(origin, "http://www.youtube.com") == 0 || strings.Index(origin, "https://www.youtube.com") == 0 {
+				w.Header().Set("Access-Control-Allow-Origin", origin)
+			}
 			v := r.URL.Query()
 			hash := v.Get("hash")
 			if hash != "" {
@@ -263,12 +268,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			}
 			log.Printf("delh %s", hash)
 		case "nowp":
-			data, err := json.Marshal(nowPlaying)
-			if err != nil {
-				fmt.Fprintf(w, "NO")
+			if player_stopped {
+				fmt.Fprintf(w, "STOPPED")
 				break
 			} else {
-				w.Write(data)
+				fmt.Fprintf(w, "OK %s", nowPlaying)
 			}
 		case "list":
 			data, err := jsonList(musicQueue, true)
@@ -397,6 +401,18 @@ func main() {
 	go queuePlayer()
 	http.HandleFunc("/", handler)
 	log.Print("starting web server...")
-	http.ListenAndServe(os.Args[1], nil)
+	if len(os.Args) < 2 {
+		log.Printf("Usage: %s <host:port>", os.Args[0])
+		log.Printf("Ex: %s :8080", os.Args[0])
+		log.Printf("Ex: %s :8443 cert.pem key.pem", os.Args[0])
+		log.Fatal("No listening socket specified, exiting!")
+	}
+	hostPort := os.Args[1]
+	if len(os.Args) == 4 {
+		certFile := os.Args[2]
+		keyFile := os.Args[3]
+		http.ListenAndServeTLS(hostPort, certFile, keyFile, nil)
+	}
+	http.ListenAndServe(hostPort, nil)
 }
 
