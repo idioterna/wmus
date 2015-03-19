@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"io/ioutil"
 	"os/signal"
+	"math/rand"
 	"encoding/json"
 	"container/list"
 )
@@ -47,12 +48,14 @@ var historyMap map[string]bool
 var musicHistory *list.List
 var messageBuffer *list.List
 var nowPlaying string
+var neverStop bool
 var player_errors chan error
 var player_quit chan bool
 var player_done chan bool
 var player_resume chan bool
 var player_stopped bool
 var player *exec.Cmd
+var rng *rand.Rand
 
 func drainchan(commch chan bool) {
 	for {
@@ -114,6 +117,17 @@ func queuePlayer() {
 			<- player_resume
 		}
 		e := musicQueue.Front()
+		if e == nil && neverStop {
+			i := rng.Intn(musicHistory.Len())
+			for e = musicHistory.Front(); e != nil; e = e.Next() {
+				if i == 0 {
+					musicQueue.PushBack(e.Value)
+					break
+				}
+				i--
+			}
+			continue
+		}
 		if e != nil {
 			log.Print("playing ", e.Value)
 			musicQueue.Remove(e)
@@ -281,7 +295,19 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			player_stopped = true
 			drainchan(player_quit)
 			player_quit <- true
+			neverStop = false
 			fmt.Fprintf(w, "OK next")
+		case "loop":
+			if musicHistory.Len() > 0 {
+				log.Printf("looping shuffled history forever")
+				player_stopped = false
+				player_resume <- true
+				neverStop = true
+				fmt.Fprintf(w, "OK next")
+			} else {
+				log.Printf("can't loop without any history")
+				fmt.Fprintf(w, "NO no history to play from")
+			}
 		case "resu":
 			log.Printf("resuming player")
 			player_stopped = false
@@ -351,6 +377,8 @@ func main() {
 	musicHistory = list.New()
 	messageBuffer = list.New()
 	nowPlaying = ""
+	neverStop = false
+	rng = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	quit_signal := make(chan os.Signal, 1)
 	signal.Notify(quit_signal, os.Interrupt)
