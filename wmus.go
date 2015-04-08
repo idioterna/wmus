@@ -31,6 +31,7 @@ type Music struct {
 }
 
 const HTML_INDEX = "index.html"
+const WMUS_JS = "wmus.js"
 const HISTORY_MAX = 250;
 
 // mplayer
@@ -218,6 +219,14 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			} else {
 				fmt.Fprintf(w, string(body))
 				log.Print("index")
+			}
+		case "wmus.js":
+			body, err := ioutil.ReadFile(WMUS_JS)
+			if err != nil {
+				fmt.Fprintf(w, "NO %v", err)
+			} else {
+				fmt.Fprintf(w, string(body))
+				log.Print("wmus.js")
 			}
 		case "addq":
 			// allow youtube userscript to interact
