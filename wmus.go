@@ -118,7 +118,7 @@ func queuePlayer() {
 			<- player_resume
 		}
 		e := musicQueue.Front()
-		if e == nil && neverStop {
+		if e == nil && neverStop && musicHistory.Len() > 0 {
 			i := rng.Intn(musicHistory.Len())
 			for e = musicHistory.Front(); e != nil; e = e.Next() {
 				if i == 0 {
@@ -390,7 +390,7 @@ func main() {
 	musicHistory = list.New()
 	messageBuffer = list.New()
 	nowPlaying = ""
-	neverStop = false
+	neverStop = true
 	rng = rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	quit_signal := make(chan os.Signal, 1)
@@ -422,6 +422,9 @@ func main() {
 		keyFile := os.Args[3]
 		http.ListenAndServeTLS(hostPort, certFile, keyFile, nil)
 	}
-	http.ListenAndServe(hostPort, nil)
+	err := http.ListenAndServe(hostPort, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
